@@ -16,5 +16,6 @@ final readonly class AfterLlmCallEvent
         public ChatCompletionOptions  $options,
         public int                    $toolRound,
         public ChatCompletionResponse $response,
-    ) {}
+    ) {
+    }
 }

@@ -21,5 +21,6 @@ final readonly class BeforeToolRoundEvent
         public Message                $assistantMessage,
         public array                  $toolCalls,
         public int                    $toolRound,
-    ) {}
+    ) {
+    }
 }

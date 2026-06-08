@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tivins\LlmLib;
@@ -10,8 +11,12 @@ class ToolCall
         public string $id,
         public string $name,
         public string $arguments,
-    ) {}
+    ) {
+    }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data): self
     {
         return new self(
@@ -21,6 +26,9 @@ class ToolCall
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

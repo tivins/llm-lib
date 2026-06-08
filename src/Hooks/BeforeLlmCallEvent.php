@@ -14,5 +14,6 @@ final readonly class BeforeLlmCallEvent
         public Conversation          $conversation,
         public ChatCompletionOptions $options,
         public int                   $toolRound,
-    ) {}
+    ) {
+    }
 }

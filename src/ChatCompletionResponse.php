@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tivins\LlmLib;
@@ -11,6 +12,7 @@ class ChatCompletionResponse
 {
     /**
      * @param Choice[] $choices
+     * @param array<string, mixed>|null $raw
      */
     public function __construct(
         public string $model,
@@ -18,8 +20,12 @@ class ChatCompletionResponse
         public array $choices,
         private ?array $raw = null,
         public ?float $duration = null,
-    ) {}
+    ) {
+    }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function raw(): ?array
     {
         return $this->raw;
@@ -45,6 +51,7 @@ class ChatCompletionResponse
         return null;
     }
 
+    /** @phpstan-impure */
     public function hasToolCalls(): bool
     {
         $calls = $this->assistantMessage()?->toolCalls;

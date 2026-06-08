@@ -17,5 +17,6 @@ final readonly class AfterToolRoundEvent
         public Conversation $conversation,
         public array        $toolMessages,
         public int          $toolRound,
-    ) {}
+    ) {
+    }
 }

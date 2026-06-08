@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tivins\LlmLib;
@@ -13,7 +14,8 @@ class LLM
         public ?string $apiKey = null,
         public ?string $defaultModel = null,
         public int $timeoutSeconds = 120,
-    ) {}
+    ) {
+    }
 
     /**
      * @throws Exception
@@ -34,9 +36,9 @@ class LLM
 
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, min(10, $this->timeoutSeconds));
         curl_setopt($curl, CURLOPT_TIMEOUT, $this->timeoutSeconds);
         $response = curl_exec($curl);
@@ -113,5 +115,5 @@ class LLM
     // Unload model : POST /models/unload
     // public function unloadModel(string $modelName): void
 
-    
+
 }

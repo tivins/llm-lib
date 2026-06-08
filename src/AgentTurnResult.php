@@ -12,5 +12,6 @@ class AgentTurnResult
         public bool $success,
         public ?string $error = null,
         public int $toolRounds = 0,
-    ) {}
+    ) {
+    }
 }

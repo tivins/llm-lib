@@ -14,5 +14,6 @@ final readonly class AfterToolCallEvent
         public ToolCall $call,
         public Message  $toolMessage,
         public int      $toolRound,
-    ) {}
+    ) {
+    }
 }

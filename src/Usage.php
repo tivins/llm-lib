@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tivins\LlmLib;
@@ -10,8 +11,12 @@ class Usage
         public int $promptTokens,
         public int $completionTokens,
         public int $totalTokens,
-    ) {}
+    ) {
+    }
 
+    /**
+     * @return array<string, int>
+     */
     public function toArray(): array
     {
         return [

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tivins\LlmLib;
@@ -14,8 +15,12 @@ class ChatCompletionOptions
         public ?ToolRegistry $tools = null,
         public ?string $toolChoice = null,
         public ?string $responseFormat = null,
-    ) {}
+    ) {
+    }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toRequestArray(?string $defaultModel): array
     {
         $body = [

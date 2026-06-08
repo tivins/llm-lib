@@ -16,5 +16,6 @@ final class BeforeToolCallEvent
     public function __construct(
         public readonly ToolCall $call,
         public readonly int $toolRound,
-    ) {}
+    ) {
+    }
 }

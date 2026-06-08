@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tivins\LlmLib;
@@ -31,9 +32,12 @@ class ToolRegistry
         return array_values($this->tools);
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     public function toRequestArray(): array
     {
-        return array_map(fn(ToolSchema $tool) => $tool->toArray(), $this->all());
+        return array_map(fn (ToolSchema $tool) => $tool->toArray(), $this->all());
     }
 
     public function has(string $name): bool
@@ -57,6 +61,6 @@ class ToolRegistry
      */
     public function executeAll(array $calls): array
     {
-        return array_map(fn(ToolCall $call) => $this->execute($call), $calls);
+        return array_map(fn (ToolCall $call) => $this->execute($call), $calls);
     }
 }

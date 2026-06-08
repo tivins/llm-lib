@@ -15,5 +15,6 @@ final readonly class AfterTurnEvent
         public Conversation          $conversation,
         public ChatCompletionOptions $options,
         public AgentTurnResult       $result,
-    ) {}
+    ) {
+    }
 }

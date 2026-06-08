@@ -25,7 +25,8 @@ class Agent
         public ToolRegistry $tools,
         public int $maxToolRounds = 10,
         public AgentHooks $hooks = new AgentHooks(),
-    ) {}
+    ) {
+    }
 
     /**
      * @throws Exception

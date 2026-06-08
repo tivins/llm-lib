@@ -15,5 +15,6 @@ final readonly class OnMaxToolRoundsExceededEvent
         public ChatCompletionOptions $options,
         public int                   $toolRounds,
         public int                   $maxToolRounds,
-    ) {}
+    ) {
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tivins\LlmLib;
@@ -11,6 +12,7 @@ use JsonSerializable;
 class Message implements JsonSerializable
 {
     /**
+     * @param array<string, mixed> $meta
      * @param ToolCall[]|null $toolCalls
      */
     public function __construct(
@@ -20,7 +22,8 @@ class Message implements JsonSerializable
         public array $meta = [],
         public ?array $toolCalls = null,
         public ?string $toolCallId = null,
-    ) {}
+    ) {
+    }
 
     public static function withCreatedAt(
         Role               $role,
@@ -35,6 +38,9 @@ class Message implements JsonSerializable
         ]);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         $payload = [
@@ -60,6 +66,9 @@ class Message implements JsonSerializable
         return $payload;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toChatCompletionArray(): array
     {
         $payload = [
@@ -83,6 +92,9 @@ class Message implements JsonSerializable
         return $payload;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return $this->toArray();

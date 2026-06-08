@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tivins\LlmLib;
@@ -8,8 +9,7 @@ class Logger
 {
     public function __construct(
         public string $filename,
-    )
-    {
+    ) {
         if (!is_dir(dirname($this->filename))) {
             mkdir(dirname($this->filename), 0755, true);
         }
