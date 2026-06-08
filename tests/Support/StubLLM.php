@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tivins\LlmLib\Tests\Support;
 
+use RuntimeException;
 use Tivins\LlmLib\ChatCompletionOptions;
 use Tivins\LlmLib\ChatCompletionResponse;
 use Tivins\LlmLib\Conversation;
@@ -30,7 +31,7 @@ final class StubLLM extends LLM
     public function chatCompletion(Conversation $conversation, ChatCompletionOptions $options): ChatCompletionResponse
     {
         if ($this->responses === []) {
-            throw new \RuntimeException('StubLLM: no response queued.');
+            throw new RuntimeException('StubLLM: no response queued.');
         }
 
         return array_shift($this->responses);

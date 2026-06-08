@@ -7,7 +7,6 @@ namespace Tivins\LlmLib\Tests;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Tivins\LlmLib\Agent;
-use Tivins\LlmLib\AgentHookEvent;
 use Tivins\LlmLib\AgentHooks;
 use Tivins\LlmLib\ChatCompletionOptions;
 use Tivins\LlmLib\Conversation;
@@ -15,12 +14,12 @@ use Tivins\LlmLib\Hooks\BeforeToolCallEvent;
 use Tivins\LlmLib\Hooks\OnAssistantResponseEvent;
 use Tivins\LlmLib\Message;
 use Tivins\LlmLib\Role;
+use Tivins\LlmLib\Tests\Support\ResponseFactory;
+use Tivins\LlmLib\Tests\Support\StubLLM;
 use Tivins\LlmLib\Tool;
 use Tivins\LlmLib\ToolCall;
 use Tivins\LlmLib\ToolRegistry;
 use Tivins\LlmLib\ToolSchema;
-use Tivins\LlmLib\Tests\Support\ResponseFactory;
-use Tivins\LlmLib\Tests\Support\StubLLM;
 
 final class AgentTest extends TestCase
 {

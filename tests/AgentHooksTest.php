@@ -7,9 +7,9 @@ namespace Tivins\LlmLib\Tests;
 use PHPUnit\Framework\TestCase;
 use Tivins\LlmLib\AgentHookEvent;
 use Tivins\LlmLib\AgentHooks;
-use Tivins\LlmLib\Hooks\BeforeTurnEvent;
 use Tivins\LlmLib\ChatCompletionOptions;
 use Tivins\LlmLib\Conversation;
+use Tivins\LlmLib\Hooks\BeforeTurnEvent;
 
 final class AgentHooksTest extends TestCase
 {
