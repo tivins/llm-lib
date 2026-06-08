@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tivins\LlmLib;
 
+/** Token usage statistics from an LLM API response. */
 class Usage
 {
     public function __construct(

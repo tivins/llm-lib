@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tivins\LlmLib;
 
+/** JSON-schema description of a callable tool sent to the LLM. */
 class ToolSchema
 {
     public function __construct(

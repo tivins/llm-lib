@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tivins\LlmLib;
 
+/** Represents a function tool invocation requested by the assistant. */
 class ToolCall
 {
     public function __construct(

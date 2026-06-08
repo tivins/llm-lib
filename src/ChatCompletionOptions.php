@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tivins\LlmLib;
 
+/** Request parameters for a chat completion (model, sampling, tools, format). */
 class ChatCompletionOptions
 {
     public function __construct(

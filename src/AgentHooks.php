@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tivins\LlmLib;
 
+/** Registry of callable listeners for agent lifecycle hook events. */
 final class AgentHooks
 {
     /** @var array<string, list<callable>> */

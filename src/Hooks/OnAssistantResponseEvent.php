@@ -6,6 +6,7 @@ namespace Tivins\LlmLib\Hooks;
 
 use Tivins\LlmLib\Message;
 
+/** Payload dispatched for the final assistant message; listeners may alter the visible content. */
 final class OnAssistantResponseEvent
 {
     public string $visibleContent;

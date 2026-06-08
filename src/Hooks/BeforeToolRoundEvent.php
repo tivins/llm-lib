@@ -9,6 +9,7 @@ use Tivins\LlmLib\Conversation;
 use Tivins\LlmLib\Message;
 use Tivins\LlmLib\ToolCall;
 
+/** Payload dispatched before the agent executes a round of tool calls. */
 final readonly class BeforeToolRoundEvent
 {
     /**

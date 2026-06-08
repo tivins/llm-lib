@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tivins\LlmLib;
 
+/** Identifies the speaker role of a chat message (system, user, assistant, or tool). */
 enum Role: string
 {
     case System = 'system';

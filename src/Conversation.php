@@ -6,8 +6,12 @@ namespace Tivins\LlmLib;
 
 use JsonSerializable;
 
+/** Holds the ordered list of messages in an LLM chat session. */
 class Conversation implements JsonSerializable
 {
+    /**
+     * @param Message[] $messages
+     */
     public function __construct(
         public array $messages = [],
         public ?Logger $logger = null,

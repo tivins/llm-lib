@@ -7,6 +7,7 @@ namespace Tivins\LlmLib\Hooks;
 use Tivins\LlmLib\ChatCompletionOptions;
 use Tivins\LlmLib\Conversation;
 
+/** Payload dispatched before an agent turn starts. */
 final readonly class BeforeTurnEvent
 {
     public function __construct(

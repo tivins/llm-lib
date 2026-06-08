@@ -8,6 +8,7 @@ use Tivins\LlmLib\AgentTurnResult;
 use Tivins\LlmLib\ChatCompletionOptions;
 use Tivins\LlmLib\Conversation;
 
+/** Payload dispatched after an agent turn completes. */
 final readonly class AfterTurnEvent
 {
     public function __construct(

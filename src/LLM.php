@@ -5,6 +5,7 @@ namespace Tivins\LlmLib;
 
 use Exception;
 
+/** HTTP client for OpenAI-compatible chat completion endpoints. */
 class LLM
 {
     public function __construct(

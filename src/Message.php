@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use JsonSerializable;
 
+/** A single chat message with role, content, metadata, and optional tool calls. */
 class Message implements JsonSerializable
 {
     /**

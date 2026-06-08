@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tivins\LlmLib;
 
+/** Names of lifecycle events dispatched by the Agent during a turn. */
 enum AgentHookEvent: string
 {
     case BeforeTurn = 'beforeTurn';

@@ -6,6 +6,7 @@ namespace Tivins\LlmLib;
 use DateTimeImmutable;
 use DateTimeInterface;
 
+/** Parsed response from a chat completion API call. */
 class ChatCompletionResponse
 {
     /**

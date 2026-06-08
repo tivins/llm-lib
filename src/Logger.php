@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tivins\LlmLib;
 
+/** Persists conversation history to a JSON file on disk. */
 class Logger
 {
     public function __construct(

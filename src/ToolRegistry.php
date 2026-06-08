@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tivins\LlmLib;
 
+/** Collection of registered tools and their handlers, exposed to the LLM and executed by the agent. */
 class ToolRegistry
 {
     /** @var array<string, ToolSchema> */

@@ -7,6 +7,7 @@ namespace Tivins\LlmLib\Hooks;
 use Tivins\LlmLib\Conversation;
 use Tivins\LlmLib\Message;
 
+/** Payload dispatched after the agent finishes a round of tool calls. */
 final readonly class AfterToolRoundEvent
 {
     /**

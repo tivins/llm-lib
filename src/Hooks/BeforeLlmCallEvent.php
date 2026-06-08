@@ -7,6 +7,7 @@ namespace Tivins\LlmLib\Hooks;
 use Tivins\LlmLib\ChatCompletionOptions;
 use Tivins\LlmLib\Conversation;
 
+/** Payload dispatched before each LLM API call within a turn. */
 final readonly class BeforeLlmCallEvent
 {
     public function __construct(

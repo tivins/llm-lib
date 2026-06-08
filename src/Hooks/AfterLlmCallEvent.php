@@ -8,6 +8,7 @@ use Tivins\LlmLib\ChatCompletionOptions;
 use Tivins\LlmLib\ChatCompletionResponse;
 use Tivins\LlmLib\Conversation;
 
+/** Payload dispatched after each LLM API call within a turn. */
 final readonly class AfterLlmCallEvent
 {
     public function __construct(

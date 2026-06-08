@@ -17,6 +17,7 @@ use Tivins\LlmLib\Hooks\BeforeTurnEvent;
 use Tivins\LlmLib\Hooks\OnAssistantResponseEvent;
 use Tivins\LlmLib\Hooks\OnMaxToolRoundsExceededEvent;
 
+/** Runs a single agent turn: LLM calls, tool execution loops, and lifecycle hooks. */
 class Agent
 {
     public function __construct(
