@@ -1,0 +1,34 @@
+<?php
+declare(strict_types=1);
+
+namespace Tivins\LlmLib;
+
+class ToolCall
+{
+    public function __construct(
+        public string $id,
+        public string $name,
+        public string $arguments,
+    ) {}
+
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            $data['id'],
+            $data['function']['name'],
+            $data['function']['arguments'],
+        );
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'type' => 'function',
+            'function' => [
+                'name' => $this->name,
+                'arguments' => $this->arguments,
+            ],
+        ];
+    }
+}

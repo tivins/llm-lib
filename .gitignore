@@ -1,0 +1,9 @@
+.idea/
+.vscode/
+.cursor/
+
+.env
+
+vendor/
+var/
+
