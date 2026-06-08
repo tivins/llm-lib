@@ -59,11 +59,8 @@ class ChatCompletionResponse
         return $calls !== null && $calls !== [];
     }
 
-    public function toStoredMessage(
-        ChatCompletionOptions $options,
-        float                 $elapsedMs,
-        ?DateTimeImmutable    $at = null,
-    ): ?Message {
+    public function toStoredMessage(?DateTimeImmutable $at = null): ?Message
+    {
         $assistant = $this->assistantMessage();
         if ($assistant === null) {
             return null;
@@ -72,9 +69,8 @@ class ChatCompletionResponse
         $at ??= new DateTimeImmutable();
         $meta = [
             'created_at' => $at->format(DateTimeInterface::ATOM),
-            'time_ms' => $elapsedMs,
+            'time_ms' => $this->duration ?? 0.0,
             'model' => $this->model,
-            'temperature' => $options->temperature,
             'usage' => $this->usage->toArray(),
         ];
         $finishReason = $this->finishReason();

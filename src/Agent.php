@@ -101,7 +101,7 @@ class Agent
             );
 
             $conversation->addMessage(
-                $response->toStoredMessage($options, $response->duration ?? 0.0) ?? $assistant,
+                $this->toStoredAssistantMessage($response, $options) ?? $assistant,
             );
 
             $toolMessages = [];
@@ -125,7 +125,7 @@ class Agent
             $finishReason === 'stop'
             || ($finishReason === 'length' && !$response->hasToolCalls())
         ) {
-            $stored = $response->toStoredMessage($options, $response->duration ?? 0.0);
+            $stored = $this->toStoredAssistantMessage($response, $options);
             if ($stored !== null) {
                 $stored = $this->applyAssistantResponseHooks($stored);
                 $conversation->addMessage($stored);
@@ -172,6 +172,24 @@ class Agent
         );
 
         return $response;
+    }
+
+    private function toStoredAssistantMessage(
+        ChatCompletionResponse $response,
+        ChatCompletionOptions $options,
+    ): ?Message {
+        $stored = $response->toStoredMessage();
+        if ($stored === null) {
+            return null;
+        }
+
+        return new Message(
+            $stored->role,
+            $stored->content,
+            $stored->reasoningContent,
+            array_merge($stored->meta, ['temperature' => $options->temperature]),
+            $stored->toolCalls,
+        );
     }
 
     private function applyAssistantResponseHooks(Message $stored): Message
