@@ -1,11 +1,16 @@
 {
     "name": "tivins/llm-lib",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "type": "library",
     "license": "MIT",
     "autoload": {
         "psr-4": {
             "Tivins\\LlmLib\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tivins\\LlmLib\\Tests\\": "tests/"
         }
     },
     "authors": [
@@ -20,7 +25,8 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.95",
-        "phpstan/phpstan": "^2.2"
+        "phpstan/phpstan": "^2.2",
+        "phpunit/phpunit": "^11.5"
     },
     "scripts": {
         "cs-check": "php-cs-fixer fix --dry-run --diff",
@@ -29,6 +35,7 @@
         "analyse": [
             "@cs-check",
             "@phpstan"
-        ]
+        ],
+        "test": "phpunit"
     }
 }
