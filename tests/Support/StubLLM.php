@@ -16,6 +16,9 @@ final class StubLLM extends LLM
     /** @var list<ChatCompletionResponse> */
     private array $responses = [];
 
+    /** @var list<list<int>> */
+    private array $tokenizeResponses = [];
+
     public function __construct()
     {
         parent::__construct('http://stub.test');
@@ -28,6 +31,12 @@ final class StubLLM extends LLM
         }
     }
 
+    /** @param list<int> $tokens */
+    public function enqueueTokens(array $tokens): void
+    {
+        $this->tokenizeResponses[] = $tokens;
+    }
+
     public function chatCompletion(Conversation $conversation, ChatCompletionOptions $options): ChatCompletionResponse
     {
         if ($this->responses === []) {
@@ -35,5 +44,14 @@ final class StubLLM extends LLM
         }
 
         return array_shift($this->responses);
+    }
+
+    public function tokenize(string $text): array
+    {
+        if ($this->tokenizeResponses === []) {
+            throw new RuntimeException('StubLLM: no tokenize response queued.');
+        }
+
+        return array_shift($this->tokenizeResponses);
     }
 }

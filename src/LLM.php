@@ -18,54 +18,39 @@ class LLM
     }
 
     /**
+     * @return list<int>
+     *
+     * @throws Exception
+     */
+    public function tokenize(string $text): array
+    {
+        $data = $this->request('POST', '/tokenize', json_encode(['content' => $text]));
+
+        if (!isset($data['tokens']) || !is_array($data['tokens'])) {
+            throw new Exception('LLM tokenize response missing tokens');
+        }
+
+        return array_map(
+            static fn (mixed $token): int => is_array($token) ? (int) ($token['id'] ?? 0) : (int) $token,
+            $data['tokens'],
+        );
+    }
+
+    /**
      * @throws Exception
      */
     public function chatCompletion(Conversation $conversation, ChatCompletionOptions $options): ChatCompletionResponse
     {
         $start = hrtime(true);
-        $url = $this->endpoint . '/v1/chat/completions';
-        $headers = ['Content-Type: application/json'];
-        if ($this->apiKey !== null) {
-            $headers[] = 'Authorization: Bearer ' . $this->apiKey;
-        }
-
         $body = json_encode(array_merge(
             ['messages' => $conversation->toChatCompletionArray()],
             $options->toRequestArray($this->defaultModel),
         ));
 
-        $curl = curl_init($url);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, min(10, $this->timeoutSeconds));
-        curl_setopt($curl, CURLOPT_TIMEOUT, $this->timeoutSeconds);
-        $response = curl_exec($curl);
-        $httpCode = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        if ($response === false) {
-            $error = curl_error($curl);
-            curl_close($curl);
-            throw new Exception($error);
-        }
-        curl_close($curl);
-
-        $data = json_decode($response, true);
-        if (!is_array($data)) {
-            throw new Exception('Invalid JSON response from LLM: ' . substr((string) $response, 0, 500));
-        }
-
-        if ($httpCode >= 400 || isset($data['error'])) {
-            $message = $data['error']['message'] ?? $data['error'] ?? "HTTP $httpCode";
-            if (is_array($message)) {
-                $message = json_encode($message, JSON_UNESCAPED_UNICODE);
-            }
-
-            throw new Exception('LLM request failed: ' . $message);
-        }
+        $data = $this->request('POST', '/v1/chat/completions', $body);
 
         if (!isset($data['choices']) || !is_array($data['choices'])) {
-            throw new Exception('LLM response missing choices: ' . substr((string) $response, 0, 500));
+            throw new Exception('LLM response missing choices');
         }
 
         $usage = new Usage(
@@ -115,5 +100,57 @@ class LLM
     // Unload model : POST /models/unload
     // public function unloadModel(string $modelName): void
 
+    /**
+     * @return array<string, mixed>
+     *
+     * @throws Exception
+     */
+    protected function request(string $method, string $path, ?string $body = null): array
+    {
+        $url = $this->endpoint . $path;
+        $headers = ['Content-Type: application/json'];
+        if ($this->apiKey !== null) {
+            $headers[] = 'Authorization: Bearer ' . $this->apiKey;
+        }
 
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, min(10, $this->timeoutSeconds));
+        curl_setopt($curl, CURLOPT_TIMEOUT, $this->timeoutSeconds);
+
+        if ($method === 'POST') {
+            curl_setopt($curl, CURLOPT_POST, true);
+            if ($body !== null) {
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
+            }
+        } elseif ($method === 'GET') {
+            curl_setopt($curl, CURLOPT_HTTPGET, true);
+        }
+
+        $response = curl_exec($curl);
+        $httpCode = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        if ($response === false) {
+            $error = curl_error($curl);
+            curl_close($curl);
+            throw new Exception($error);
+        }
+        curl_close($curl);
+
+        $data = json_decode($response, true);
+        if (!is_array($data)) {
+            throw new Exception('Invalid JSON response from LLM: ' . substr((string) $response, 0, 500));
+        }
+
+        if ($httpCode >= 400 || isset($data['error'])) {
+            $message = $data['error']['message'] ?? $data['error'] ?? "HTTP $httpCode";
+            if (is_array($message)) {
+                $message = json_encode($message, JSON_UNESCAPED_UNICODE);
+            }
+
+            throw new Exception('LLM request failed: ' . $message);
+        }
+
+        return $data;
+    }
 }

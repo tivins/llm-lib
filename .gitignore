@@ -10,3 +10,5 @@ var/
 .php-cs-fixer.cache
 .phpunit.cache
 
+/new_release.php
+opencode.json
