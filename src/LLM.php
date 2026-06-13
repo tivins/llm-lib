@@ -47,7 +47,14 @@ class LLM
             $options->toRequestArray($this->defaultModel),
         ));
 
-        $data = $this->request('POST', '/v1/chat/completions', $body);
+        try {
+            $data = $this->request('POST', '/v1/chat/completions', $body);
+        } catch (Exception $e) {
+            $data = $this->tryRecoverHarmonyParseError($e);
+            if ($data === null) {
+                throw $e;
+            }
+        }
 
         if (!isset($data['choices']) || !is_array($data['choices'])) {
             throw new Exception('LLM response missing choices');
@@ -68,12 +75,17 @@ class LLM
                     $choice['message']['tool_calls'],
                 );
             }
+            [$content, $reasoningContent] = self::normalizeAssistantContent(
+                $choice['message']['content'] ?? '',
+                $choice['message']['reasoning_content'] ?? null,
+            );
+
             $choices[] = new Choice(
                 $choice['index'],
                 new Message(
                     Role::tryFrom($choice['message']['role']) ?? Role::Unknown,
-                    $choice['message']['content'] ?? '',
-                    $choice['message']['reasoning_content'] ?? null,
+                    $content,
+                    $reasoningContent,
                     toolCalls: $toolCalls,
                     toolCallId: $choice['message']['tool_call_id'] ?? null,
                 ),
@@ -152,5 +164,63 @@ class LLM
         }
 
         return $data;
+    }
+
+    /**
+     * @return array{0: string, 1: ?string}
+     */
+    private static function normalizeAssistantContent(string $content, ?string $reasoningContent): array
+    {
+        if (!str_contains($content, '<|channel|>')) {
+            return [$content, $reasoningContent];
+        }
+
+        $parsed = HarmonyContent::parse($content);
+        $reasoning = $parsed['reasoning'];
+        if ($reasoningContent !== null && $reasoningContent !== '') {
+            $reasoning = $reasoning !== null && $reasoning !== ''
+                ? $reasoningContent . "\n" . $reasoning
+                : $reasoningContent;
+        }
+
+        return [$parsed['content'], $reasoning];
+    }
+
+    /**
+     * llama.cpp may return HTTP 500 after a successful generation when its Harmony
+     * autoparser fails on the raw output. Recover when the error embeds parseable text.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function tryRecoverHarmonyParseError(Exception $e): ?array
+    {
+        $prefix = 'LLM request failed: ';
+        $message = $e->getMessage();
+        if (!str_starts_with($message, $prefix)) {
+            return null;
+        }
+
+        $parsed = HarmonyContent::tryParseServerError(substr($message, strlen($prefix)));
+        if ($parsed === null || $parsed['content'] === '') {
+            return null;
+        }
+
+        return [
+            'model' => $this->defaultModel ?? 'unknown',
+            'choices' => [[
+                'index' => 0,
+                'message' => [
+                    'role' => 'assistant',
+                    'content' => $parsed['content'],
+                    'reasoning_content' => $parsed['reasoning'],
+                ],
+                'finish_reason' => 'stop',
+            ]],
+            'usage' => [
+                'prompt_tokens' => 0,
+                'completion_tokens' => 0,
+                'total_tokens' => 0,
+            ],
+        ];
     }
 }

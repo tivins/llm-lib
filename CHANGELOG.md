@@ -7,15 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-13
+
 ### Added
 
 - `LLM::tokenize()` — tokenize text via llama.cpp-compatible `POST /tokenize` endpoint.
 - `examples/example-tokenize.php` — compare token vectors for similar and dissimilar phrases.
 - `examples/example-tokenize-words.php` — word-level typos, inflections, synonyms, and unrelated pairs.
+- `HarmonyContent` — parser for GPT-OSS Harmony channel format (`analysis` / `final`).
 
 ### Changed
 
 - `LLM` — HTTP request logic extracted into shared `request()` method (used by `chatCompletion` and `tokenize`).
+- `LLM::chatCompletion()` — normalizes GPT-OSS / Harmony `<|channel|>` markers in assistant responses; recovers usable text from llama.cpp "Failed to parse input" HTTP 500 errors when the embedded output is parseable.
+- `Message::toChatCompletionArray()` — strips Harmony channel markers from assistant `content` before re-sending history to the server.
 
 ## [0.1.3] - 2026-06-09
 

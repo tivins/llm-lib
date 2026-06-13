@@ -71,9 +71,14 @@ class Message implements JsonSerializable
      */
     public function toChatCompletionArray(): array
     {
+        $content = $this->content;
+        if ($this->role === Role::Assistant && str_contains($content, '<|channel|>')) {
+            $content = HarmonyContent::parse($content)['content'];
+        }
+
         $payload = [
             'role' => $this->role->value,
-            'content' => $this->content === '' ? null : $this->content,
+            'content' => $content === '' ? null : $content,
         ];
         // reasoning_content is intentionally omitted here: it is internal chain-of-thought
         // produced by the model and must not be re-injected into subsequent requests

@@ -100,4 +100,18 @@ final class MessageTest extends TestCase
         self::assertArrayNotHasKey('tool_calls', $message->toArray());
         self::assertArrayNotHasKey('tool_calls', $message->toChatCompletionArray());
     }
+
+    public function testToChatCompletionArrayStripsHarmonyChannelMarkersFromAssistantContent(): void
+    {
+        $message = new Message(
+            Role::Assistant,
+            '<|channel|>analysis<|message|>internal thought<|end|>'
+            . '<|start|>assistant<|channel|>final<|message|>User-facing answer<|return|>',
+        );
+
+        self::assertSame([
+            'role' => 'assistant',
+            'content' => 'User-facing answer',
+        ], $message->toChatCompletionArray());
+    }
 }

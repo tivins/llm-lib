@@ -6,7 +6,10 @@ namespace Tivins\LlmLib\Tests;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use Tivins\LlmLib\ChatCompletionOptions;
+use Tivins\LlmLib\Conversation;
 use Tivins\LlmLib\LLM;
+use Tivins\LlmLib\Role;
 
 final class LLMTest extends TestCase
 {
@@ -63,6 +66,56 @@ final class LLMTest extends TestCase
         $this->expectExceptionMessage('LLM tokenize response missing tokens');
 
         $llm->tokenize('x');
+    }
+
+    public function testChatCompletionNormalizesHarmonyContentFromResponse(): void
+    {
+        $llm = new class ('http://stub.test') extends LLM {
+            protected function request(string $method, string $path, ?string $body = null): array
+            {
+                return [
+                    'model' => 'gpt-oss-test',
+                    'choices' => [[
+                        'index' => 0,
+                        'message' => [
+                            'role' => 'assistant',
+                            'content' => '<|channel|>analysis<|message|>thinking<|end|>'
+                                . '<|start|>assistant<|channel|>final<|message|>answer<|return|>',
+                        ],
+                        'finish_reason' => 'stop',
+                    ]],
+                    'usage' => ['prompt_tokens' => 1, 'completion_tokens' => 2, 'total_tokens' => 3],
+                ];
+            }
+        };
+
+        $response = $llm->chatCompletion(new Conversation(), new ChatCompletionOptions());
+        $assistant = $response->assistantMessage();
+
+        self::assertNotNull($assistant);
+        self::assertSame('answer', $assistant->content);
+        self::assertSame('thinking', $assistant->reasoningContent);
+    }
+
+    public function testChatCompletionRecoversFromHarmonyParseServerError(): void
+    {
+        $llm = new class ('http://stub.test', defaultModel: 'gpt-oss-test') extends LLM {
+            protected function request(string $method, string $path, ?string $body = null): array
+            {
+                throw new Exception(
+                    'LLM request failed: Failed to parse input at pos 13: <|channel|>analysis<|message|>thought<|end|>'
+                    . '<|start|>assistant<|channel|>final<|message|>recovered answer<|return|>',
+                );
+            }
+        };
+
+        $response = $llm->chatCompletion(new Conversation(), new ChatCompletionOptions());
+        $assistant = $response->assistantMessage();
+
+        self::assertNotNull($assistant);
+        self::assertSame(Role::Assistant, $assistant->role);
+        self::assertSame('recovered answer', $assistant->content);
+        self::assertSame('thought', $assistant->reasoningContent);
     }
 }
 
