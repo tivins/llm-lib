@@ -114,4 +114,18 @@ final class MessageTest extends TestCase
             'content' => 'User-facing answer',
         ], $message->toChatCompletionArray());
     }
+
+    public function testToChatCompletionArrayStripsTimestampedChannelJsonFormat(): void
+    {
+        $message = new Message(
+            Role::Assistant,
+            '<|channel>2024-10-11T16:40:54.384Z' . "\n"
+            . '{"thought":"internal"}Visible answer',
+        );
+
+        self::assertSame([
+            'role' => 'assistant',
+            'content' => 'Visible answer',
+        ], $message->toChatCompletionArray());
+    }
 }

@@ -72,7 +72,7 @@ class Message implements JsonSerializable
     public function toChatCompletionArray(): array
     {
         $content = $this->content;
-        if ($this->role === Role::Assistant && str_contains($content, '<|channel|>')) {
+        if ($this->role === Role::Assistant && HarmonyContent::containsChannelMarkers($content)) {
             $content = HarmonyContent::parse($content)['content'];
         }
 

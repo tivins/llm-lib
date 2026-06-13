@@ -117,6 +117,35 @@ final class LLMTest extends TestCase
         self::assertSame('recovered answer', $assistant->content);
         self::assertSame('thought', $assistant->reasoningContent);
     }
+
+    public function testChatCompletionNormalizesTimestampedChannelJsonFormat(): void
+    {
+        $llm = new class ('http://stub.test') extends LLM {
+            protected function request(string $method, string $path, ?string $body = null): array
+            {
+                return [
+                    'model' => 'thinker-test',
+                    'choices' => [[
+                        'index' => 0,
+                        'message' => [
+                            'role' => 'assistant',
+                            'content' => '<|channel>2024-10-11T16:40:54.384Z' . "\n"
+                                . '{"thought":"internal reasoning"}Le début de la réponse',
+                        ],
+                        'finish_reason' => 'stop',
+                    ]],
+                    'usage' => ['prompt_tokens' => 1, 'completion_tokens' => 2, 'total_tokens' => 3],
+                ];
+            }
+        };
+
+        $response = $llm->chatCompletion(new Conversation(), new ChatCompletionOptions());
+        $assistant = $response->assistantMessage();
+
+        self::assertNotNull($assistant);
+        self::assertSame('Le début de la réponse', $assistant->content);
+        self::assertSame('internal reasoning', $assistant->reasoningContent);
+    }
 }
 
 final class CapturingLLM extends LLM

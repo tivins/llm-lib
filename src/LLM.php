@@ -171,7 +171,7 @@ class LLM
      */
     private static function normalizeAssistantContent(string $content, ?string $reasoningContent): array
     {
-        if (!str_contains($content, '<|channel|>')) {
+        if (!HarmonyContent::containsChannelMarkers($content)) {
             return [$content, $reasoningContent];
         }
 

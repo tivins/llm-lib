@@ -50,4 +50,27 @@ final class HarmonyContentTest extends TestCase
 
         self::assertSame('Hello', HarmonyContent::stripTokens($raw));
     }
+
+    public function testParseExtractsThoughtJsonAfterTimestampedChannelMarker(): void
+    {
+        $raw = '<|channel>2024-10-11T16:40:54.384Z' . "\n"
+            . '{' . "\n"
+            . '  "thought": "markdown content in json."}Le début de la réponse';
+
+        self::assertSame([
+            'content' => 'Le début de la réponse',
+            'reasoning' => 'markdown content in json.',
+        ], HarmonyContent::parse($raw));
+    }
+
+    public function testParsePreservesStandardHarmonyWhenChannelNameIsPresent(): void
+    {
+        $raw = '<|channel|>analysis<|message|>CoT<|end|>'
+            . '<|start|>assistant<|channel|>final<|message|>Answer<|return|>';
+
+        self::assertSame([
+            'content' => 'Answer',
+            'reasoning' => 'CoT',
+        ], HarmonyContent::parse($raw));
+    }
 }

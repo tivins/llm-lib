@@ -9,17 +9,33 @@ final class HarmonyContent
 {
     private const CHANNEL = '<|channel|>';
 
+    private const CHANNEL_ALT = '<|channel>';
+
     private const MESSAGE = '<|message|>';
 
     private const START = '<|start|>';
+
+    public static function containsChannelMarkers(string $raw): bool
+    {
+        return str_contains($raw, self::CHANNEL) || str_contains($raw, self::CHANNEL_ALT);
+    }
 
     /**
      * @return array{content: string, reasoning: ?string}
      */
     public static function parse(string $raw): array
     {
-        if (!str_contains($raw, self::CHANNEL)) {
+        if (!self::containsChannelMarkers($raw)) {
             return ['content' => $raw, 'reasoning' => null];
+        }
+
+        $jsonParsed = self::tryParseChannelJsonFormat($raw);
+        if ($jsonParsed !== null) {
+            return $jsonParsed;
+        }
+
+        if (!str_contains($raw, self::CHANNEL)) {
+            return ['content' => self::stripTokens($raw), 'reasoning' => null];
         }
 
         $segments = preg_split('/(?=' . preg_quote(self::START, '/') . '|' . preg_quote(self::CHANNEL, '/') . ')/', $raw, -1, PREG_SPLIT_NO_EMPTY);
@@ -90,10 +106,109 @@ final class HarmonyContent
     public static function stripTokens(string $text): string
     {
         $text = preg_replace('/<\|start\|>[^<]*/', '', $text) ?? $text;
-        $text = preg_replace('/<\|channel\|>[^<]*/', '', $text) ?? $text;
+        $text = preg_replace('/<\|channel\|?>[^<{]*/', '', $text) ?? $text;
         $text = str_replace(['<|message|>', '<|end|>', '<|return|>', '<|call|>'], '', $text);
 
         return trim($text);
+    }
+
+    /**
+     * Some models emit `<|channel>TIMESTAMP\n{"thought":"…"}visible answer` instead of
+     * the standard Harmony `<|channel|>analysis<|message|>…` sequence.
+     *
+     * @return array{content: string, reasoning: ?string}|null
+     */
+    private static function tryParseChannelJsonFormat(string $raw): ?array
+    {
+        if (!preg_match('/^<\|channel>\|?/s', $raw)) {
+            return null;
+        }
+
+        if (preg_match('/^<\|channel\|>(analysis|final|commentary)</', $raw)) {
+            return null;
+        }
+
+        $afterMarker = preg_replace('/^<\|channel>\|?/', '', $raw, 1);
+        if ($afterMarker === null) {
+            return null;
+        }
+
+        $bracePos = strpos($afterMarker, '{');
+        if ($bracePos === false) {
+            return null;
+        }
+
+        $json = self::extractJsonObject(substr($afterMarker, $bracePos));
+        if ($json === null) {
+            return null;
+        }
+
+        /** @var mixed $decoded */
+        $decoded = json_decode($json, true);
+        if (!is_array($decoded)) {
+            return null;
+        }
+
+        $thought = $decoded['thought'] ?? $decoded['thinking'] ?? null;
+        if (!is_string($thought)) {
+            $thought = null;
+        }
+
+        $content = trim(substr($afterMarker, $bracePos + strlen($json)));
+        if ($thought === null && $content === '') {
+            return null;
+        }
+
+        return [
+            'content' => $content,
+            'reasoning' => $thought !== null && $thought !== '' ? $thought : null,
+        ];
+    }
+
+    private static function extractJsonObject(string $text): ?string
+    {
+        if ($text === '' || $text[0] !== '{') {
+            return null;
+        }
+
+        $depth = 0;
+        $inString = false;
+        $escape = false;
+        $length = strlen($text);
+
+        for ($i = 0; $i < $length; $i++) {
+            $char = $text[$i];
+
+            if ($escape) {
+                $escape = false;
+                continue;
+            }
+
+            if ($char === '\\' && $inString) {
+                $escape = true;
+                continue;
+            }
+
+            if ($char === '"') {
+                $inString = !$inString;
+                continue;
+            }
+
+            if ($inString) {
+                continue;
+            }
+
+            if ($char === '{') {
+                $depth++;
+            } elseif ($char === '}') {
+                $depth--;
+                if ($depth === 0) {
+                    return substr($text, 0, $i + 1);
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
