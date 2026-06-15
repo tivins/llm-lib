@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `ToolCallRejection` — factory for standard tool messages when execution is skipped (e.g. `userRejected()` for approval gates).
+- `examples/ex110-tool-proposal-rejected.php` — reject a proposed tool call via `beforeToolCall::$replacement` in a single tool round (StubLLM, no server required).
+
+### Changed
+
+- Examples renumbered by difficulty in groups of 10 (`ex010-…`, `ex020-…`, …) so intermediate examples can be inserted (`ex011`, `ex012`, …).
+
 ## [0.2.1] - 2026-06-13
 
 ### Fixed

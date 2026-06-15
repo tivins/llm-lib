@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Example 3: runs one turn through an Agent with no tools. Compared with
- * Example 2, this adds Agent orchestration and structured success/error
+ * ex030 — one turn through an Agent with no tools. Compared with
+ * ex020, this adds Agent orchestration and structured success/error
  * handling, while keeping the task text-only and intentionally simple.
  */
 

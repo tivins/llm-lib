@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Example 1: runs the smallest useful single-turn chat completion against the
+ * ex010 — smallest useful single-turn chat completion against the
  * local LLM. This baseline only creates an LLM client, a conversation, request
  * options, and prints the assistant answer without logs, memory, agents, tools,
  * or multi-step orchestration.

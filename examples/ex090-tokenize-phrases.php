@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Example: tokenize only — explore token vectors for similar and dissimilar phrases.
+ * ex090 — tokenize: explore token vectors for similar and dissimilar phrases.
  *
  * Calls LLM::tokenize() against a llama.cpp-compatible server (POST /tokenize).
  * Compares token counts, leading prefixes, and position-wise overlap between pairs.
  *
- * Usage: php examples/example-tokenize.php
+ * Usage: php examples/ex090-tokenize-phrases.php
  */
 
 declare(strict_types=1);

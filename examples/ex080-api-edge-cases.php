@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Example 8: explores library edge cases and remaining API surfaces.
- * Compared with Example 7, this covers dynamic tool registration, unknown-tool
+ * ex080 — library edge cases and remaining API surfaces.
+ * Compared with ex070, this covers dynamic tool registration, unknown-tool
  * recovery, max tool round limits, structured JSON output, and reasoning content
  * kept in logs but excluded from the next request payload.
  */

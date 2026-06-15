@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Example 7: demonstrates advanced Agent lifecycle hooks.
- * Compared with Example 6, this adds turn-level hooks, tool-round hooks, mocked
+ * ex070 — advanced Agent lifecycle hooks.
+ * Compared with ex060, this adds turn-level hooks, tool-round hooks, mocked
  * tool execution via BeforeToolCall::$replacement, and response rewriting via
  * OnAssistantResponse::$visibleContent.
  */

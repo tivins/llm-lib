@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Example 5: runs a more complete support workflow with several tools and
- * lifecycle hooks. Compared with Example 4, this adds multiple tool choices,
+ * ex050 — support workflow with several tools and lifecycle hooks.
+ * Compared with ex040, this adds multiple tool choices,
  * lightweight observability, and a final answer that combines order data with a
  * business policy.
  */

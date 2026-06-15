@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Example: word-level tokenize — typos, inflections, synonyms, and unrelated words.
+ * ex100 — word-level tokenize: typos, inflections, synonyms, and unrelated words.
  *
  * Single words isolate how the tokenizer behaves: it matches spelling and subword
  * pieces, not meaning. Typos often share token prefixes; synonyms usually do not.
  *
- * Usage: php examples/example-tokenize-words.php
+ * Usage: php examples/ex100-tokenize-words.php
  */
 
 declare(strict_types=1);

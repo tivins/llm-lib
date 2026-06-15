@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Example 6: runs a multi-turn agent session on the same conversation.
- * Compared with Example 5, this reuses one Agent across several user turns and
+ * ex060 — multi-turn agent session on the same conversation.
+ * Compared with ex050, this reuses one Agent across several user turns and
  * inspects assistant metadata (model, timing, token usage, finish_reason).
  */
 

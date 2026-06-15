@@ -30,6 +30,7 @@ PHP library for building **LLM agents** against **OpenAI-compatible** chat compl
 | Message history | `Conversation` | `src/Conversation.php` |
 | Single turn: LLM ↔ tools loop | `Agent` | `src/Agent.php` |
 | Tool definitions + handlers | `ToolRegistry`, `Tool`, `ToolSchema` | `src/ToolRegistry.php`, … |
+| Skipped tool call payloads | `ToolCallRejection` | `src/ToolCallRejection.php` |
 | Request parameters | `ChatCompletionOptions` | `src/ChatCompletionOptions.php` |
 | Turn outcome | `AgentTurnResult` | `src/AgentTurnResult.php` |
 | Optional JSON persistence | `Logger` | `src/Logger.php` |
@@ -212,7 +213,10 @@ Register listeners on `AgentHooks` (fluent API). Events are defined in `AgentHoo
 ```php
 $hooks = new AgentHooks();
 $hooks->beforeToolCall(function (BeforeToolCallEvent $event): void {
-    // Return a canned tool message without calling the handler:
+    // Skip execution with a standard user-rejection payload:
+    // $event->replacement = ToolCallRejection::userRejected($event->call);
+
+    // Or return any canned tool message without calling the handler:
     // $event->replacement = new Message(Role::Tool, '{"mock":true}', toolCallId: $event->call->id);
 });
 
@@ -273,6 +277,7 @@ src/
   Role.php
   Tool.php
   ToolCall.php
+  ToolCallRejection.php
   ToolRegistry.php
   ToolSchema.php
   Usage.php

@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Example 4: lets the Agent call one deterministic PHP tool before answering.
- * Compared with Example 3, this adds a ToolRegistry, a JSON schema, a tool
+ * ex040 — Agent calls one deterministic PHP tool before answering.
+ * Compared with ex030, this adds a ToolRegistry, a JSON schema, a tool
  * handler, and one support scenario where the model must look up order data.
  */
 

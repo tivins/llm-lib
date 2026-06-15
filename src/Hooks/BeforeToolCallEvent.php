@@ -10,7 +10,7 @@ use Tivins\LlmLib\ToolCall;
 /** Payload dispatched before a single tool call; listeners may supply a replacement result. */
 final class BeforeToolCallEvent
 {
-    /** If set, the real tool handler is skipped. */
+    /** If set, the real tool handler is skipped. Use {@see ToolCallRejection} for standard rejection payloads. */
     public ?Message $replacement = null;
 
     public function __construct(

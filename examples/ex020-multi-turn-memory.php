@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Example 2: runs a two-turn conversation against the local LLM. Compared with
- * Example 1, this adds conversation memory and persistent JSON logging, but it
+ * ex020 — two-turn conversation against the local LLM. Compared with
+ * ex010, this adds conversation memory and persistent JSON logging, but it
  * still calls the LLM directly without agents or tools.
  */
 
