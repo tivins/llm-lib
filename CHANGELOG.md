@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-16
+
 ### Added
 
 - `ToolCallRejection` — factory for standard tool messages when execution is skipped (e.g. `userRejected()` for approval gates).
