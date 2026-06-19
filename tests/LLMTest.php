@@ -10,6 +10,7 @@ use Tivins\LlmLib\ChatCompletionOptions;
 use Tivins\LlmLib\Conversation;
 use Tivins\LlmLib\EmbeddingOptions;
 use Tivins\LlmLib\LLM;
+use Tivins\LlmLib\RerankOptions;
 use Tivins\LlmLib\Role;
 
 final class LLMTest extends TestCase
@@ -235,6 +236,75 @@ final class LLMTest extends TestCase
 
         $llm->embeddings('x');
     }
+
+    public function testRerankReturnsScoredResults(): void
+    {
+        $llm = new class ('http://stub.test') extends LLM {
+            protected function request(string $method, string $path, ?string $body = null): array
+            {
+                return [
+                    'model' => 'rerank-test',
+                    'results' => [
+                        ['index' => 1, 'relevance_score' => 0.2],
+                        ['index' => 0, 'relevance_score' => 0.9],
+                    ],
+                    'usage' => ['prompt_tokens' => 10, 'total_tokens' => 10],
+                ];
+            }
+        };
+
+        $documents = ['panda bear', 'stock market'];
+        $response = $llm->rerank('What is a panda?', $documents);
+
+        self::assertSame('rerank-test', $response->model);
+        self::assertSame(10, $response->usage->totalTokens);
+        self::assertCount(2, $response->results);
+        self::assertSame(1, $response->results[0]->index);
+        self::assertEqualsWithDelta(0.2, $response->results[0]->relevanceScore, 0.0001);
+
+        $sorted = $response->sortedResults();
+        self::assertSame(0, $sorted[0]->index);
+        self::assertEqualsWithDelta(0.9, $sorted[0]->relevanceScore, 0.0001);
+
+        $ranked = $response->rankedDocuments($documents);
+        self::assertSame([
+            ['index' => 0, 'document' => 'panda bear', 'relevanceScore' => 0.9],
+            ['index' => 1, 'document' => 'stock market', 'relevanceScore' => 0.2],
+        ], $ranked);
+    }
+
+    public function testRerankSendsQueryDocumentsAndOptionsToEndpoint(): void
+    {
+        $llm = new CapturingLLM('http://stub.test', defaultModel: 'default-rerank');
+
+        $llm->rerank(
+            'What is a panda?',
+            ['doc a', 'doc b'],
+            new RerankOptions(model: 'qwen3-reranker', topN: 2),
+        );
+
+        self::assertSame('POST', $llm->method);
+        self::assertSame('/v1/rerank', $llm->path);
+        self::assertSame(
+            '{"query":"What is a panda?","documents":["doc a","doc b"],"model":"qwen3-reranker","top_n":2}',
+            $llm->body,
+        );
+    }
+
+    public function testRerankThrowsWhenResultsMissing(): void
+    {
+        $llm = new class ('http://stub.test') extends LLM {
+            protected function request(string $method, string $path, ?string $body = null): array
+            {
+                return ['model' => 'rerank-test'];
+            }
+        };
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('LLM rerank response missing results');
+
+        $llm->rerank('query', ['doc']);
+    }
 }
 
 final class CapturingLLM extends LLM
@@ -256,6 +326,16 @@ final class CapturingLLM extends LLM
                 'model' => 'capture-test',
                 'data' => [
                     ['index' => 0, 'object' => 'embedding', 'embedding' => [0.0]],
+                ],
+                'usage' => ['prompt_tokens' => 1, 'total_tokens' => 1],
+            ];
+        }
+
+        if ($path === '/v1/rerank') {
+            return [
+                'model' => 'capture-test',
+                'results' => [
+                    ['index' => 0, 'relevance_score' => 1.0],
                 ],
                 'usage' => ['prompt_tokens' => 1, 'total_tokens' => 1],
             ];

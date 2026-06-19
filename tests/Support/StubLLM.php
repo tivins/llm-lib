@@ -11,6 +11,8 @@ use Tivins\LlmLib\Conversation;
 use Tivins\LlmLib\EmbeddingOptions;
 use Tivins\LlmLib\EmbeddingResponse;
 use Tivins\LlmLib\LLM;
+use Tivins\LlmLib\RerankOptions;
+use Tivins\LlmLib\RerankResponse;
 
 /** LLM double that returns pre-queued responses without HTTP. */
 final class StubLLM extends LLM
@@ -23,6 +25,9 @@ final class StubLLM extends LLM
 
     /** @var list<EmbeddingResponse> */
     private array $embeddingResponses = [];
+
+    /** @var list<RerankResponse> */
+    private array $rerankResponses = [];
 
     public function __construct()
     {
@@ -46,6 +51,13 @@ final class StubLLM extends LLM
     {
         foreach ($responses as $response) {
             $this->embeddingResponses[] = $response;
+        }
+    }
+
+    public function enqueueRerank(RerankResponse ...$responses): void
+    {
+        foreach ($responses as $response) {
+            $this->rerankResponses[] = $response;
         }
     }
 
@@ -74,5 +86,17 @@ final class StubLLM extends LLM
         }
 
         return array_shift($this->embeddingResponses);
+    }
+
+    public function rerank(
+        string $query,
+        array $documents,
+        RerankOptions $options = new RerankOptions(),
+    ): RerankResponse {
+        if ($this->rerankResponses === []) {
+            throw new RuntimeException('StubLLM: no rerank response queued.');
+        }
+
+        return array_shift($this->rerankResponses);
     }
 }

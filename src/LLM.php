@@ -6,7 +6,7 @@ namespace Tivins\LlmLib;
 
 use Exception;
 
-/** HTTP client for OpenAI-compatible LLM endpoints (chat, embeddings, tokenize). */
+/** HTTP client for OpenAI-compatible LLM endpoints (chat, embeddings, rerank, tokenize). */
 class LLM
 {
     public function __construct(
@@ -149,6 +149,64 @@ class LLM
             is_string($data['model'] ?? null) ? $data['model'] : ($options->model ?? $this->defaultModel ?? 'unknown'),
             $usage,
             $embeddings,
+            $data,
+            $elapsedMs,
+        );
+    }
+
+    /**
+     * @param list<string> $documents
+     *
+     * @throws Exception
+     */
+    public function rerank(
+        string $query,
+        array $documents,
+        RerankOptions $options = new RerankOptions(),
+    ): RerankResponse {
+        $start = hrtime(true);
+        $body = json_encode(array_merge(
+            [
+                'query' => $query,
+                'documents' => $documents,
+            ],
+            $options->toRequestArray($this->defaultModel),
+        ));
+
+        $data = $this->request('POST', '/v1/rerank', $body);
+
+        if (!isset($data['results']) || !is_array($data['results'])) {
+            throw new Exception('LLM rerank response missing results');
+        }
+
+        $usage = new Usage(
+            $data['usage']['prompt_tokens'] ?? 0,
+            0,
+            $data['usage']['total_tokens'] ?? 0,
+        );
+
+        $results = [];
+        foreach ($data['results'] as $item) {
+            if (!is_array($item)) {
+                throw new Exception('LLM rerank response item is not an object');
+            }
+
+            if (!isset($item['index'], $item['relevance_score'])) {
+                throw new Exception('LLM rerank response item missing index or relevance_score');
+            }
+
+            $results[] = new RerankResult(
+                (int) $item['index'],
+                (float) $item['relevance_score'],
+            );
+        }
+
+        $elapsedMs = (hrtime(true) - $start) / 1e6;
+
+        return new RerankResponse(
+            is_string($data['model'] ?? null) ? $data['model'] : ($options->model ?? $this->defaultModel ?? 'unknown'),
+            $usage,
+            $results,
             $data,
             $elapsedMs,
         );

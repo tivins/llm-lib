@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-19
+
+### Added
+
+- `LLM::rerank()` — llama.cpp-compatible `POST /v1/rerank` (query + documents, optional `top_n`).
+- `RerankOptions`, `RerankResult`, `RerankResponse` — request/response types for reranking.
+- `RerankResponse::sortedResults()` and `rankedDocuments()` — helpers for RAG pipelines.
+- `examples/ex130-rerank.php` — rerank a document list against a local reranker server.
+
+### Changed
+
+- `StubLLM` — supports queued `rerank()` responses for tests.
+
 ## [0.4.0] - 2026-06-19
 
 ### Added
