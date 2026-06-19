@@ -30,8 +30,6 @@ $texts = [
     'Stock markets rallied after the earnings report.',
 ];
 
-$response = $llm->embeddings(["Le chat est assis sur le tapis.","La voiture est rouge."], $options);
-$vectorsFR = $response->vectors() ;
 
 $response = $llm->embeddings($texts, $options);
 
@@ -49,13 +47,9 @@ foreach ($response->embeddings as $embedding) {
 $vectors = $response->vectors();
 $similarity = cosineSimilarity($vectors[0], $vectors[1]);
 $unrelated = cosineSimilarity($vectors[0], $vectors[2]);
-$similarityFR = cosineSimilarity($vectorsFR[0], $vectors[1]);
-$unrelatedFR = cosineSimilarity($vectorsFR[1], $vectorsFR[0]);
 
 echo "Cosine similarity (cat/feline): " . number_format($similarity, 4) . "\n";
 echo "Cosine similarity (cat/markets): " . number_format($unrelated, 4) . "\n";
-echo "Cosine similarity (cat/feline) FR: " . number_format($similarityFR, 4) . "\n";
-echo "Cosine similarity (car/red) FR: " . number_format($unrelatedFR, 4) . "\n";
 /**
  * @param list<float> $left
  * @param list<float> $right
