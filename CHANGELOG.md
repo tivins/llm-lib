@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-19
+
+### Added
+
+- `LLM::embeddings()` — OpenAI-compatible `POST /v1/embeddings` (string or batch input, float/base64 vectors).
+- `EmbeddingOptions`, `Embedding`, `EmbeddingResponse` — request/response types for embeddings.
+- `examples/ex120-embeddings.php` — batch embeddings and cosine similarity against a local embedding server.
+
+### Changed
+
+- `LLM` — documented as a general OpenAI-compatible HTTP client (chat, embeddings, tokenize), not chat-only.
+- `StubLLM` — supports queued `embeddings()` responses for tests.
+
 ## [0.3.0] - 2026-06-16
 
 ### Added

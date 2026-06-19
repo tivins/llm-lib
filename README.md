@@ -26,17 +26,18 @@ PHP library for building **LLM agents** against **OpenAI-compatible** chat compl
 
 | Responsibility | Class | File |
 |---|---|---|
-| HTTP client for `/v1/chat/completions` | `LLM` | `src/LLM.php` |
+| HTTP client for `/v1/chat/completions`, `/v1/embeddings`, `/tokenize` | `LLM` | `src/LLM.php` |
 | Message history | `Conversation` | `src/Conversation.php` |
 | Single turn: LLM ↔ tools loop | `Agent` | `src/Agent.php` |
 | Tool definitions + handlers | `ToolRegistry`, `Tool`, `ToolSchema` | `src/ToolRegistry.php`, … |
 | Skipped tool call payloads | `ToolCallRejection` | `src/ToolCallRejection.php` |
-| Request parameters | `ChatCompletionOptions` | `src/ChatCompletionOptions.php` |
+| Request parameters (chat) | `ChatCompletionOptions` | `src/ChatCompletionOptions.php` |
+| Request parameters (embeddings) | `EmbeddingOptions` | `src/EmbeddingOptions.php` |
 | Turn outcome | `AgentTurnResult` | `src/AgentTurnResult.php` |
 | Optional JSON persistence | `Logger` | `src/Logger.php` |
 | Observability / extension points | `AgentHooks` | `src/AgentHooks.php` |
 
-**Not included:** streaming, embeddings, model management endpoints (stubs exist as comments in `LLM.php`), multi-agent orchestration, or a built-in chat UI.
+**Not included:** streaming, rerank, model management endpoints (stubs exist as comments in `LLM.php`), multi-agent orchestration, or a built-in chat UI.
 
 ---
 
@@ -185,8 +186,11 @@ new AgentTurnResult(
 
 ### `LLM`
 
-- Endpoint base URL (no trailing `/v1`); requests go to `{endpoint}/v1/chat/completions`.
+- Endpoint base URL (no trailing `/v1`); requests go to `{endpoint}/v1/chat/completions`, `{endpoint}/v1/embeddings`, etc.
 - Optional `apiKey` → `Authorization: Bearer` header.
+- `chatCompletion()` — chat with optional Harmony/GPT-OSS response normalization.
+- `embeddings()` — OpenAI-compatible `POST /v1/embeddings` (`input` as string or string array; optional `encoding_format`, `dimensions`).
+- `tokenize()` — llama.cpp `POST /tokenize`.
 - Throws `Exception` on cURL failure, HTTP ≥ 400, or malformed JSON.
 
 ### `ToolRegistry`

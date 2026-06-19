@@ -6,7 +6,7 @@ namespace Tivins\LlmLib;
 
 use Exception;
 
-/** HTTP client for OpenAI-compatible chat completion endpoints. */
+/** HTTP client for OpenAI-compatible LLM endpoints (chat, embeddings, tokenize). */
 class LLM
 {
     public function __construct(
@@ -103,6 +103,57 @@ class LLM
         );
     }
 
+    /**
+     * @param string|list<string> $input
+     *
+     * @throws Exception
+     */
+    public function embeddings(
+        string|array $input,
+        EmbeddingOptions $options = new EmbeddingOptions(),
+    ): EmbeddingResponse {
+        $start = hrtime(true);
+        $body = json_encode(array_merge(
+            ['input' => $input],
+            $options->toRequestArray($this->defaultModel),
+        ));
+
+        $data = $this->request('POST', '/v1/embeddings', $body);
+
+        if (!isset($data['data']) || !is_array($data['data'])) {
+            throw new Exception('LLM embeddings response missing data');
+        }
+
+        $usage = new Usage(
+            $data['usage']['prompt_tokens'] ?? 0,
+            0,
+            $data['usage']['total_tokens'] ?? 0,
+        );
+
+        $embeddings = [];
+        foreach ($data['data'] as $item) {
+            if (!is_array($item)) {
+                throw new Exception('LLM embeddings response item is not an object');
+            }
+
+            $vector = self::parseEmbeddingVector($item['embedding'] ?? null);
+            $embeddings[] = new Embedding(
+                (int) ($item['index'] ?? count($embeddings)),
+                $vector,
+            );
+        }
+
+        $elapsedMs = (hrtime(true) - $start) / 1e6;
+
+        return new EmbeddingResponse(
+            is_string($data['model'] ?? null) ? $data['model'] : ($options->model ?? $this->defaultModel ?? 'unknown'),
+            $usage,
+            $embeddings,
+            $data,
+            $elapsedMs,
+        );
+    }
+
     // Get models list : GET /v1/models
     // public function listModels(): array
 
@@ -164,6 +215,56 @@ class LLM
         }
 
         return $data;
+    }
+
+    /**
+     * @return list<float>
+     *
+     * @throws Exception
+     */
+    private static function parseEmbeddingVector(mixed $value): array
+    {
+        if (is_array($value)) {
+            return array_map(static fn (mixed $component): float => (float) $component, $value);
+        }
+
+        if (is_string($value)) {
+            return self::decodeBase64Embedding($value);
+        }
+
+        throw new Exception('LLM embeddings response missing embedding vector');
+    }
+
+    /**
+     * OpenAI returns base64-encoded little-endian float32 vectors when encoding_format is base64.
+     *
+     * @return list<float>
+     *
+     * @throws Exception
+     */
+    private static function decodeBase64Embedding(string $encoded): array
+    {
+        $bytes = base64_decode($encoded, true);
+        if ($bytes === false) {
+            throw new Exception('LLM embeddings response has invalid base64 embedding');
+        }
+
+        if (strlen($bytes) % 4 !== 0) {
+            throw new Exception('LLM embeddings response has malformed base64 embedding');
+        }
+
+        $vector = [];
+        for ($offset = 0, $length = strlen($bytes); $offset < $length; $offset += 4) {
+            $chunk = substr($bytes, $offset, 4);
+            $unpacked = unpack('g', $chunk);
+            if ($unpacked === false) {
+                throw new Exception('LLM embeddings response has malformed base64 embedding');
+            }
+
+            $vector[] = (float) $unpacked[1];
+        }
+
+        return $vector;
     }
 
     /**
